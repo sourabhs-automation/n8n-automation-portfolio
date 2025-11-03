@@ -1,0 +1,357 @@
+{
+  "name": "Tech-Stack-Analyzer",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -672,
+        -64
+      ],
+      "id": "9d7f07a1-e038-4659-a42c-7079cda25ee1",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TKjxAPJrApeqOidtDf2bwpqtzbKbCyntjp3A-1EVDVc",
+          "mode": "list",
+          "cachedResultName": "Company tech stack",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TKjxAPJrApeqOidtDf2bwpqtzbKbCyntjp3A-1EVDVc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TKjxAPJrApeqOidtDf2bwpqtzbKbCyntjp3A-1EVDVc/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -464,
+        -64
+      ],
+      "id": "7c623fc2-549b-44d2-a8d8-31d0cd721290",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "SKglMuzmA4zmR3WK",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -224,
+        -64
+      ],
+      "id": "714538bc-5201-4299-98c8-fb55c68cd93e",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.data }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Analyze the received content and identify only the technologies used by the company. Ignore all other information. Response format: Present the results as a structured list organized by categories. Each category will group similar technologies. Example classification: Hosting & Servers: [Technology names] CMS & Content Management: [Technology names] Analysis & Tracking Tools: [Technology names] Security & Performance: [Technology names] Other technologies: [Technology names]  Constraints: Do not include irrelevant text (advertisements, external sources, etc.). Limit to technologies specific to the analyzed company. Provide a clear and concise response."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        192,
+        -48
+      ],
+      "id": "d04e007b-c1aa-4b30-85e5-9c5fae7aae2e",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "url": "=https://r.jina.ai/builtwith.com/{{ $json['Company Domain'] }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer jina_67f145d39aa348e484bba2fe66a419e8JfjHJcm8Reu5sbxFiB7R8fWaX3vq"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        16,
+        -48
+      ],
+      "id": "c6bcb355-8316-44ce-b542-ec327384cace",
+      "name": "Technology sourcing"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        128,
+        160
+      ],
+      "id": "e04b003f-7b57-40ca-8468-299303a04143",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "TcuiQLZYRY8QtLxH",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"technologies\": {\n    \"Hosting & Servers\": [\n      \"Cloudflare\",\n      \"AWS CloudFront\"\n    ],\n    \"CMS\": [\n      \"WordPress\"\n    ],\n    \"Analysis & Tracking Tools\": [\n      \"Google Analytics\",\n      \"Hotjar\"\n    ],\n    \"Security & Performance\": [\n      \"reCAPTCHA\",\n      \"SSL by Let's Encrypt\"\n    ],\n    \"Other technologies\": [\n      \"Google Tag Manager\",\n      \"Facebook Pixel\"\n    ]\n  }\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        336,
+        160
+      ],
+      "id": "82d0d825-a351-41e4-8b1c-79b34062551e",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1TKjxAPJrApeqOidtDf2bwpqtzbKbCyntjp3A-1EVDVc",
+          "mode": "list",
+          "cachedResultName": "Company tech stack",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TKjxAPJrApeqOidtDf2bwpqtzbKbCyntjp3A-1EVDVc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TKjxAPJrApeqOidtDf2bwpqtzbKbCyntjp3A-1EVDVc/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Company Domain": "={{ $('Get row(s) in sheet').item.json['Company Domain'] }}",
+            "Hosting & Servers": "={{ $json.output.technologies['Hosting & Servers'].join() }}",
+            "CMS ": "={{ $json.output.technologies.CMS.join() }}",
+            "Analysis and Tracking Tools": "={{ $json.output.technologies['Analysis & Tracking Tools'].join() }}",
+            "Security and Performance": "={{ $json.output.technologies['Security & Performance'].join() }}",
+            "Other technologies": "={{ $json.output.technologies['Other technologies'].join() }}"
+          },
+          "matchingColumns": [
+            "Company Domain"
+          ],
+          "schema": [
+            {
+              "id": "Company Domain",
+              "displayName": "Company Domain",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Hosting & Servers",
+              "displayName": "Hosting & Servers",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CMS ",
+              "displayName": "CMS ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Analysis and Tracking Tools",
+              "displayName": "Analysis and Tracking Tools",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Security and Performance",
+              "displayName": "Security and Performance",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Other technologies",
+              "displayName": "Other technologies",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        544,
+        -48
+      ],
+      "id": "60586d5f-fcbb-450e-b261-3839dabd7305",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "SKglMuzmA4zmR3WK",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Technology sourcing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Technology sourcing": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1080cfbb-16aa-4cb0-bc75-78aa867892c0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "584c65478509174251e01087025d82abcbf636f3f650fabc35c25e4cc9ded6d9"
+  },
+  "id": "IjZmbtjYeB2QniMN",
+  "tags": [
+    {
+      "createdAt": "2025-10-29T16:58:33.034Z",
+      "updatedAt": "2025-10-29T16:58:33.034Z",
+      "id": "XzrNWFq3mvKnkFVZ",
+      "name": "n8n-practice-udemy"
+    }
+  ]
+}

@@ -1,0 +1,835 @@
+{
+  "name": "Set-Switch-Merge Operation",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "23bbfd37-5320-48fb-88d2-ba7913c7f8b4",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -560,
+        48
+      ],
+      "id": "3305df00-26fc-4f39-9183-a0edfcbcdfdb",
+      "name": "Webhook",
+      "webhookId": "23bbfd37-5320-48fb-88d2-ba7913c7f8b4"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "91cf7dd2-9f6d-45c1-91df-ff5513e2f322",
+              "name": "id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "10052bc7-8e14-4e4a-8bc8-10f3a0a4990b",
+              "name": "first_name",
+              "value": "={{ $json.first_name }}",
+              "type": "string"
+            },
+            {
+              "id": "1ed917c2-3dec-4623-b4bf-c9ffdfdb8da9",
+              "name": "last_name",
+              "value": "={{ $json.last_name }}",
+              "type": "string"
+            },
+            {
+              "id": "41910cc9-f1d4-4b0e-a7aa-3e7d61f329fa",
+              "name": "email",
+              "value": "={{ $json.email }}",
+              "type": "string"
+            },
+            {
+              "id": "b7868c03-21dc-435e-a474-e4eb7906200c",
+              "name": "gender",
+              "value": "={{ $json.gender ? $json.gender.trim().charAt(0).toUpperCase() + $json.gender.trim().slice(1).toLowerCase() : '' }}",
+              "type": "string"
+            },
+            {
+              "id": "f9c99562-0836-4dce-8ad9-36812cc4535e",
+              "name": "ip_address",
+              "value": "={{ $json.ip_address }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -352,
+        48
+      ],
+      "id": "e08b5439-e007-4304-af1a-8a101bd8b3eb",
+      "name": "Clean user data"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.gender }}",
+                    "rightValue": "Female",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "be78dffb-6bfe-4809-b978-85dfaa061244"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b506287d-8d01-4216-b1db-9cf4b3ce7459",
+                    "leftValue": "={{ $json.gender }}",
+                    "rightValue": "Male",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "14d95e26-75cf-4af4-b36a-ee8e580f89f0",
+                    "leftValue": "={{ $json.gender }}",
+                    "rightValue": "['Male','Female']",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notContains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -144,
+        32
+      ],
+      "id": "ad61c705-3de3-4374-97e7-ef9bbefa2b3d",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1Rtwc-Mq_RNvzixhmA31ZOyHG4H-Tr8IRguQKGIiIR5s",
+          "mode": "list",
+          "cachedResultName": "Others",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Rtwc-Mq_RNvzixhmA31ZOyHG4H-Tr8IRguQKGIiIR5s/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Rtwc-Mq_RNvzixhmA31ZOyHG4H-Tr8IRguQKGIiIR5s/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "first_name": "={{ $json.first_name }}",
+            "last_name": "={{ $json.last_name }}",
+            "email": "={{ $json.email }}",
+            "gender": "={{ $json.gender }}",
+            "ip_address": "={{ $('Clean user data').item.json.ip_address }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "first_name",
+              "displayName": "first_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "last_name",
+              "displayName": "last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "gender",
+              "displayName": "gender",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ip_address",
+              "displayName": "ip_address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "useAppend": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        128,
+        272
+      ],
+      "id": "539a582e-e30f-42fd-8864-24f718a09137",
+      "name": "Others",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "SKglMuzmA4zmR3WK",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        432,
+        48
+      ],
+      "id": "18744a5d-d2d9-41db-8083-65d5180deee3",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1ubtpxqAjahcndzpgRjRUSePvvLa-MuajwdJNtY1jsPQ",
+          "mode": "list",
+          "cachedResultName": "Combined data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ubtpxqAjahcndzpgRjRUSePvvLa-MuajwdJNtY1jsPQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ubtpxqAjahcndzpgRjRUSePvvLa-MuajwdJNtY1jsPQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "first_name": "={{ $json.first_name }}",
+            "last_name": "={{ $json.last_name }}",
+            "email": "={{ $json.email }}",
+            "gender": "={{ $json.gender }}",
+            "ip_address": "={{ $json.ip_address }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "first_name",
+              "displayName": "first_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "last_name",
+              "displayName": "last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "gender",
+              "displayName": "gender",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ip_address",
+              "displayName": "ip_address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "useAppend": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        640,
+        48
+      ],
+      "id": "73f63f41-3393-482a-9fa9-7f02cf2795bb",
+      "name": "Combine Data",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "SKglMuzmA4zmR3WK",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1Btan0pXks7Jnl4FpcxA9eyvmlxf15GsME76XfSghIEw",
+          "mode": "list",
+          "cachedResultName": "Female data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Btan0pXks7Jnl4FpcxA9eyvmlxf15GsME76XfSghIEw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Btan0pXks7Jnl4FpcxA9eyvmlxf15GsME76XfSghIEw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "first_name": "={{ $json.first_name }}",
+            "last_name": "={{ $json.last_name }}",
+            "email": "={{ $json.email }}",
+            "gender": "={{ $json.gender }}",
+            "ip_address": "={{ $json.ip_address }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "first_name",
+              "displayName": "first_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "last_name",
+              "displayName": "last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "gender",
+              "displayName": "gender",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ip_address",
+              "displayName": "ip_address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "useAppend": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        128,
+        -160
+      ],
+      "id": "7c6234a2-c89d-4375-a2b5-b3d61e4fc4e7",
+      "name": "Female",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "SKglMuzmA4zmR3WK",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1XU9JKZjVLN3udy3D5eD7QdXs8PLNh4J2Nnh2Q5swmro",
+          "mode": "list",
+          "cachedResultName": "Male",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XU9JKZjVLN3udy3D5eD7QdXs8PLNh4J2Nnh2Q5swmro/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XU9JKZjVLN3udy3D5eD7QdXs8PLNh4J2Nnh2Q5swmro/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "first_name": "={{ $json.first_name }}",
+            "last_name": "={{ $json.last_name }}",
+            "email": "={{ $json.email }}",
+            "gender": "={{ $json.gender }}",
+            "ip_address": "={{ $json.ip_address }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "first_name",
+              "displayName": "first_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "last_name",
+              "displayName": "last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "gender",
+              "displayName": "gender",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ip_address",
+              "displayName": "ip_address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "useAppend": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        128,
+        48
+      ],
+      "id": "57a8e562-541e-4c8d-9d7b-d23b96d7f8d5",
+      "name": "Male",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "SKglMuzmA4zmR3WK",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "id": 1,
+          "first_name": "Maud",
+          "last_name": "Seaking",
+          "email": "mseaking0@hhs.gov",
+          "gender": "",
+          "ip_address": "221.41.172.41"
+        }
+      },
+      {
+        "json": {
+          "id": 2,
+          "first_name": "Lora",
+          "last_name": "Fripps",
+          "email": "lfripps1@wired.com",
+          "gender": "Female",
+          "ip_address": "225.6.225.254"
+        }
+      },
+      {
+        "json": {
+          "id": 3,
+          "first_name": "Jack",
+          "last_name": "Matys",
+          "email": "jmatys2@godaddy.com",
+          "gender": "Binary",
+          "ip_address": "232.103.195.45"
+        }
+      },
+      {
+        "json": {
+          "id": 4,
+          "first_name": "Desdemona",
+          "last_name": "Longworthy",
+          "email": "dlongworthy3@nydailynews.com",
+          "gender": "Female",
+          "ip_address": "101.135.130.166"
+        }
+      },
+      {
+        "json": {
+          "id": 5,
+          "first_name": "Leia",
+          "last_name": "Fairbeard",
+          "email": "lfairbeard4@timesonline.co.uk",
+          "gender": "Female",
+          "ip_address": "18.250.46.32"
+        }
+      },
+      {
+        "json": {
+          "id": 6,
+          "first_name": "Vincenty",
+          "last_name": "Saladin",
+          "email": "vsaladin5@goo.gl",
+          "gender": "Male",
+          "ip_address": "122.54.156.189"
+        }
+      },
+      {
+        "json": {
+          "id": 7,
+          "first_name": "Moishe",
+          "last_name": "Benedite",
+          "email": "mbenedite6@photobucket.com",
+          "gender": "Male",
+          "ip_address": "55.232.29.228"
+        }
+      },
+      {
+        "json": {
+          "id": 8,
+          "first_name": "Luise",
+          "last_name": "Francello",
+          "email": "lfrancello7@ebay.com",
+          "gender": "Female",
+          "ip_address": "142.50.84.35"
+        }
+      },
+      {
+        "json": {
+          "id": 9,
+          "first_name": "Magnum",
+          "last_name": "Gebbe",
+          "email": "mgebbe8@google.ca",
+          "gender": "Male",
+          "ip_address": "182.221.45.5"
+        }
+      },
+      {
+        "json": {
+          "id": 10,
+          "first_name": "Rosalinda",
+          "last_name": "Eardley",
+          "email": "reardley9@smh.com.au",
+          "gender": "Female",
+          "ip_address": "211.86.109.32"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Clean user data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean user data": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Female",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Male",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Others",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Others": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Combine Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Female": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Male": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "419e185d-91fb-4a0a-8d6f-8094752f2bc1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "584c65478509174251e01087025d82abcbf636f3f650fabc35c25e4cc9ded6d9"
+  },
+  "id": "oN02QZswnJkJ0gsq",
+  "tags": []
+}

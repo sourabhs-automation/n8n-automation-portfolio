@@ -1,0 +1,439 @@
+{
+  "name": "Hotel booking automation",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Hotel booking",
+        "formDescription": "This form will be used to take hotel bookings",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Full name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Number of Adults",
+              "fieldType": "number",
+              "placeholder": "(1, 2, 3...)",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Number of rooms required",
+              "placeholder": "(1, 2, 3...)",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Checkin Date",
+              "fieldType": "date",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Stay duration",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "=1"
+                  },
+                  {
+                    "option": "2"
+                  },
+                  {
+                    "option": "3"
+                  },
+                  {
+                    "option": "4"
+                  },
+                  {
+                    "option": "5"
+                  },
+                  {
+                    "option": "6"
+                  },
+                  {
+                    "option": "7"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Phone number",
+              "fieldType": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        -576,
+        16
+      ],
+      "id": "94fc0eb0-e6bd-4de5-b434-64d88a3972cc",
+      "name": "Booking request form",
+      "webhookId": "62f7fb1f-c68b-40b9-85f6-000604ebdf4a"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Booking request form').item.json.Email }}",
+        "subject": "Booking confirmation",
+        "message": "=Hi  {{ $('Booking request form').item.json['Full name'] }}, your booking is confirmed for {{ $('Booking request form').item.json['Stay duration'] }} at La'Pearl Hotel, your checkin date is {{ $('Booking request form').item.json['Checkin Date'] }}\n\nPlease see below booking details:\nPrimary Guest name: {{ $('Booking request form').item.json['Full name'] }}\nTotal guest: {{ $('Booking request form').item.json['Number of Adults'] }}\nRooms requested: {{ $('Booking request form').item.json['Number of rooms required'] }}\n\nStandard Checkin time: 11:00 AM\nStandard Checkout time: 10:00 AM\n\nKindly make the payment via given payment link: \"paymenturl\"\n\nHappy to host you.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        80,
+        -176
+      ],
+      "id": "a4360b95-e22b-4763-84d1-e49f42d534e2",
+      "name": "Booking confirmation and  payment request",
+      "webhookId": "7ca6c22c-3456-4480-a113-b045940a51c4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WxT4m2ugftR6IHxD",
+          "name": "Gmail account 2032"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0968UG6ARK",
+          "mode": "list",
+          "cachedResultName": "all-ai-space"
+        },
+        "message": "=New booking received, Confirm availability:\n\nBooking ID:  {{ $workflow.id }}\nGuest Name: {{ $('Booking request form').item.json['Full name'] }}\nTotal Guest: {{ $('Booking request form').item.json['Number of Adults'] }}\nRooms Required: {{ $('Booking request form').item.json['Number of rooms required'] }}\nCheckin Date: {{ $('Booking request form').item.json['Checkin Date'] }}\nStay Duration: {{ $('Booking request form').item.json['Stay duration'] }}",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        -352,
+        16
+      ],
+      "id": "74a0f426-529b-444e-b55f-2be9dcac69ad",
+      "name": "HITL - Hotel Staff",
+      "webhookId": "4bcfc557-101a-46ab-9e5c-74366ad20fa2",
+      "credentials": {
+        "slackApi": {
+          "id": "Gw4S3KIXIhap6pE9",
+          "name": "x-bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "bae5ccc4-994c-4a87-82ad-77e269dd4a5f",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -144,
+        16
+      ],
+      "id": "03f135eb-c194-4693-b8f1-726489861c70",
+      "name": "If available"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Booking request form').item.json.Email }}",
+        "subject": "Checkin reminder for your upcoming booking",
+        "message": "=Dear {{ $('Booking request form').item.json['Full name'] }},\n\nWe’re delighted to welcome you soon to [Hotel Name]! This is a friendly reminder about your upcoming stay with us.\n\nBooking Details:\n\nGuest Name: {{ $('Booking request form').item.json['Full name'] }}\n\nCheck-in Date: {{ $('Booking request form').item.json['Checkin Date'] }}\n\nStay duration: {{ $('Booking request form').item.json['Stay duration'] }}\n\nReservation Number: {{ $workflow.id }}\n\nCheck-in Information:\nOur check-in time starts at [Time], and check-out is until [Time]. Should you need an early check-in or late check-out, please let us know in advance — we’ll do our best to accommodate your request.\n\nHotel Address:\n[Hotel Address]\n[City, State, ZIP]\n📞 [Hotel Contact Number] | ✉️ [Hotel Email Address]\n\nYou can find directions to the hotel here\n and explore nearby attractions on our website here\n.\n\nWe look forward to making your stay comfortable and memorable. If there’s anything we can arrange before your arrival, please don’t hesitate to contact us.\n\nWarm regards,\n[Your Name]\n[Your Position]\n[Hotel Name]\n[Hotel Contact Info]",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        704,
+        -176
+      ],
+      "id": "516040bb-b2e9-4b83-bd7e-865e0fac5f32",
+      "name": "Checkin Reminder Mail",
+      "webhookId": "1b3c2293-dfc3-4b57-9002-3b06b9634f51",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WxT4m2ugftR6IHxD",
+          "name": "Gmail account 2032"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"dateMinusOne\": \"{{ new Date(new Date($('Booking request form').item.json['Checkin Date']).getTime() - 24*60*60*1000).toISOString().split('T')[0] }}\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        288,
+        -176
+      ],
+      "id": "d526dad1-b8fe-4e54-82e6-c11698102c17",
+      "name": "Set Reminder date"
+    },
+    {
+      "parameters": {
+        "resume": "specificTime",
+        "dateTime": "={{ $json.dateMinusOne }}"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        496,
+        -176
+      ],
+      "id": "c1173f2f-fa33-4a74-8b07-66d73c7228ac",
+      "name": "Wait for sending checkin reminder",
+      "webhookId": "13ad87da-8fc5-4187-8a7c-a17c8337a9ed"
+    },
+    {
+      "parameters": {
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Upload ID proof",
+              "fieldType": "file",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.3,
+      "position": [
+        912,
+        -176
+      ],
+      "id": "54e6c09a-cc48-485d-b227-bf9640bb7079",
+      "name": "Upload checkin documents",
+      "webhookId": "8c45fa06-85f6-41fa-ae50-46e08f55b39b"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "binaryPropertyName": "Upload_ID_proof",
+        "options": {
+          "channelId": "C0968UG6ARK"
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1120,
+        -176
+      ],
+      "id": "a641761b-9963-44ef-903c-4d16e025d741",
+      "name": "Upload a file",
+      "webhookId": "5d954f6a-f212-4386-a957-f4f26e8f2da8",
+      "credentials": {
+        "slackApi": {
+          "id": "Gw4S3KIXIhap6pE9",
+          "name": "x-bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"checkoutDate\": \"{{ new Date(new Date($('Booking request form').item.json['Checkin Date']).getTime() + 96*60*60*1000).toISOString().split('T')[0] }}\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1328,
+        -176
+      ],
+      "id": "dbdd2e69-9755-40d9-b985-51085dd63499",
+      "name": "Checkout reminder"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Booking request form').item.json.Email }}",
+        "subject": "Checkout reminder!",
+        "message": "=Hi {{ $('Booking request form').item.json['Full name'] }},  \n\nJust a friendly reminder that your checkout is scheduled for about 4 hours from now (by {{ $json.checkoutDate }}).  \nBefore you head out: • Rate your stay: [Rating Link] • Clear any remaining dues: [Link for payment]  If you’ve already settled everything, thank you! If you need a little extra time, just reply to this email and we’ll do our best to help.  \n\nSafe travels, [Property Name] Team ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1504,
+        -160
+      ],
+      "id": "60d3d2ad-aaeb-4a91-81c3-4b0be55338f1",
+      "name": "Send a message",
+      "webhookId": "737ad8fe-547a-417e-a5cf-19bbe7e8cd78",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WxT4m2ugftR6IHxD",
+          "name": "Gmail account 2032"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Booking request form": {
+      "main": [
+        [
+          {
+            "node": "HITL - Hotel Staff",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HITL - Hotel Staff": {
+      "main": [
+        [
+          {
+            "node": "If available",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If available": {
+      "main": [
+        [
+          {
+            "node": "Booking confirmation and  payment request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Booking confirmation and  payment request": {
+      "main": [
+        [
+          {
+            "node": "Set Reminder date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Reminder date": {
+      "main": [
+        [
+          {
+            "node": "Wait for sending checkin reminder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for sending checkin reminder": {
+      "main": [
+        [
+          {
+            "node": "Checkin Reminder Mail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checkin Reminder Mail": {
+      "main": [
+        [
+          {
+            "node": "Upload checkin documents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload checkin documents": {
+      "main": [
+        [
+          {
+            "node": "Upload a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload a file": {
+      "main": [
+        [
+          {
+            "node": "Checkout reminder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checkout reminder": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "14RKamG5YfbfCWjh"
+  },
+  "versionId": "554bc519-430d-4aa6-aba4-48e24e526996",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "584c65478509174251e01087025d82abcbf636f3f650fabc35c25e4cc9ded6d9"
+  },
+  "id": "uPeDnUEGrvTdLyUD",
+  "tags": []
+}

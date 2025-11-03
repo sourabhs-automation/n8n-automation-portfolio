@@ -1,0 +1,448 @@
+{
+  "name": "Twitter Agent - HIL",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json['Describe the topic'] }}",
+        "options": {
+          "systemMessage": "Overview\n\nYou are an AI agent responsible for creating Twitter (X) posts based on user requests.\n\nInstructions\n\nAlways use the Tavily Search tool to find accurate, current information about the topic.\n\nWrite an informative, engaging tweet (up to 280 characters).\n\nInclude a brief reference to the source (e.g., \"via TechCrunch\", \"according to The Verge\") directly in the tweet.\n\nDo not output anything except the final tweet.\n\nTool\n\nTavily Search: Use this for real-time web search. Must be used every time before creating the post.\n\nExample\n\nInput: \"Create a tweet about NASA’s latest discovery.\"\n\nAction: Search the web using Tavily Search.\n\nOutput: \"NASA just found signs of ancient riverbeds on Mars—suggesting the Red Planet may have once been home to life. Huge leap in space exploration 🚀 (via NASA) #Mars #SpaceNews\"\n\nFinal Notes\n\nAvoid clickbait or speculation—stick to factual and sourced content.\n\nUse hashtags or emojis only to enhance visibility.\n\nKeep language friendly, concise, and informative.\n\nNever use an \"@\" symbol when referencing the source."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -272,
+        -96
+      ],
+      "id": "587d5436-e904-48d3-9acf-e504099db8ff",
+      "name": "x post agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        16,
+        528
+      ],
+      "id": "346f396f-9c65-419f-b843-9d69fd053ac5",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "TcuiQLZYRY8QtLxH",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "formTitle": "x post topic",
+        "formDescription": "Test form",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Describe the topic"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        -608,
+        -96
+      ],
+      "id": "de356927-ad4c-4d78-86f9-98e1e5037e8f",
+      "name": "On form submission1",
+      "webhookId": "5cc40883-5d99-4f62-bd1e-b7500a4e03df"
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $json.data.text }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "Approved",
+              "description": "The post has been reviewed and accepted as it is. Te human explicitly or implicity experessed approval, indicating that no changes are required."
+            },
+            {
+              "category": "Declined",
+              "description": "This post has been reviewed but the human require modifications before it is sent like tweaks, removing parts, rewording etc. This could include suggested edits, rewording or major revisions"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        800,
+        -96
+      ],
+      "id": "f989c0c9-8775-4087-9627-8c954433179c",
+      "name": "Text Classifier"
+    },
+    {
+      "parameters": {
+        "text": "={{ $('Revision Agent').item.json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.twitter",
+      "typeVersion": 2,
+      "position": [
+        1264,
+        -368
+      ],
+      "id": "7c118c3e-5401-4e55-b821-af4edc3db72b",
+      "name": "Create Tweet",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Current output:  {{ $('x post agent').item.json.output }}\n\nMake update: {{ $('Human in the loop').item.json.data.text }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1200,
+        80
+      ],
+      "id": "e3922d1f-b39a-4293-a7a9-c0a034f1a431",
+      "name": "Revision Agent"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "253d9100-0b3a-4a62-9251-82d043bb2a1e",
+              "name": "post",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        144,
+        -96
+      ],
+      "id": "bc19b3e4-7937-4221-bc56-9f2ed5ae67f1",
+      "name": "Set Post"
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09HJLR8SHG",
+          "mode": "list",
+          "cachedResultName": "x-posts"
+        },
+        "message": "={{ $json.post }}",
+        "responseType": "freeText",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        464,
+        -96
+      ],
+      "id": "12175ffd-da66-458a-8cde-23cde43e5a2f",
+      "name": "Human in the loop",
+      "webhookId": "99bb7e87-f454-4636-9539-5d85f5d8e127",
+      "credentials": {
+        "slackApi": {
+          "id": "Gw4S3KIXIhap6pE9",
+          "name": "x-bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Use this tool to search the web",
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": \"{{$('On form submission1').item.json['Describe the topic'] }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        -432,
+        528
+      ],
+      "id": "e83e7f83-daaf-4a25-8ef3-90b77452921f",
+      "name": "Web search",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "YNHO5jtUbTe2ZoJz",
+          "name": "Header Auth account"
+        },
+        "httpBearerAuth": {
+          "id": "FW0hnpOt6O0vszzK",
+          "name": "Tavily Bearer Auth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Initial content\n",
+        "height": 304,
+        "width": 720
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -720,
+        -192
+      ],
+      "typeVersion": 1,
+      "id": "297bfaf4-3de4-4b0f-b4d8-76ef04eef656",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Human in the loop",
+        "height": 240,
+        "width": 288,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        384,
+        -160
+      ],
+      "typeVersion": 1,
+      "id": "49945668-dd23-460f-beca-9707069651bb",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Set node",
+        "height": 240,
+        "width": 288,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        48,
+        -160
+      ],
+      "typeVersion": 1,
+      "id": "b68e62af-e738-4727-b984-fd8b72e1f775",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Tavily web search",
+        "height": 224,
+        "width": 352,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -560,
+        448
+      ],
+      "typeVersion": 1,
+      "id": "0cf04c9a-1057-4cf8-8770-9fa9a3747f4f",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Decision point",
+        "height": 240,
+        "width": 352
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        736,
+        -160
+      ],
+      "typeVersion": 1,
+      "id": "1269c68e-efc2-4461-91f4-be34cc05cebf",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Post on twitter",
+        "height": 256,
+        "width": 320,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1152,
+        -432
+      ],
+      "typeVersion": 1,
+      "id": "472727d0-954e-41b5-bee2-027882b046bb",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## Chat Agent",
+        "height": 224,
+        "width": 272
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        448
+      ],
+      "typeVersion": 1,
+      "id": "0d8da88f-7648-4cd0-8b63-6466e94a1929",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "## Revision",
+        "height": 288,
+        "width": 336,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1152,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "7f4a3e58-5d58-425e-803f-eb95df78c28f",
+      "name": "Sticky Note7"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "x post agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Revision Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "x post agent": {
+      "main": [
+        [
+          {
+            "node": "Set Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission1": {
+      "main": [
+        [
+          {
+            "node": "x post agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Classifier": {
+      "main": [
+        [
+          {
+            "node": "Create Tweet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Revision Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Post": {
+      "main": [
+        [
+          {
+            "node": "Human in the loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Revision Agent": {
+      "main": [
+        [
+          {
+            "node": "Set Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Human in the loop": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Web search": {
+      "ai_tool": [
+        [
+          {
+            "node": "x post agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "628d3d73-1f21-40e4-a9b8-36aac58eab7a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "584c65478509174251e01087025d82abcbf636f3f650fabc35c25e4cc9ded6d9"
+  },
+  "id": "nmPZo4VhKdWrDpCO",
+  "tags": []
+}

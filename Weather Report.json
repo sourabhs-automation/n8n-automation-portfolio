@@ -1,0 +1,248 @@
+{
+  "name": "Weather Report",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {},
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -464,
+        0
+      ],
+      "id": "08d0648b-8f28-4a13-a75c-4c9a54648bba",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09F55CN2J0",
+          "mode": "list",
+          "cachedResultName": "daily-weather-report"
+        },
+        "text": "={{ $json.text }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        992,
+        0
+      ],
+      "id": "6d5477a2-87a5-4bea-9e3d-7d7e92e70cfb",
+      "name": "Send a message",
+      "webhookId": "6e2acf98-b6f9-4239-bd69-dbd0648be96b",
+      "credentials": {
+        "slackApi": {
+          "id": "FgizPYSwOsZqQFBV",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.open-meteo.com/v1/forecast?latitude={{ $json.latitude }}&longitude={{ $json.longitude }}&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_clear_sky_max&timezone=auto&forecast_days=1\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        576,
+        0
+      ],
+      "id": "39ffd36c-3daa-4fc8-acd5-968f6bb7d71a",
+      "name": "Get weather report"
+    },
+    {
+      "parameters": {
+        "jsCode": "const daily = $json.daily;\nconst location = $json.results ? $json.results[0].name : 'your location';\n\n// Extract weather info for the day (assuming first index)\nconst tempMax = daily.temperature_2m_max[0];\nconst tempMin = daily.temperature_2m_min[0];\nconst sunrise = daily.sunrise[0].split('T')[1];\nconst sunset = daily.sunset[0].split('T')[1];\nconst uvIndex = daily.uv_index_clear_sky_max[0];\n\n// Construct Slack-friendly message\nconst message = \n  `*Daily Weather Report for ${$('Geo-coding').first().json.results[0].name}\\n` +\n  `🌡️ Max Temp: ${tempMax}°C\\n` +\n  `🌡️ Min Temp: ${tempMin}°C\\n` +\n  `🌅 Sunrise: ${sunrise}\\n` +\n  `🌇 Sunset: ${sunset}\\n` +\n  `🔆 Max UV Index: ${uvIndex}`;\n\nreturn [{ json: { text: message } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        784,
+        0
+      ],
+      "id": "4bb99169-3a45-4dbf-900e-bf83f8f29619",
+      "name": "Text formatting"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0ebd9566-3e77-4015-8425-8ce8ca87961a",
+              "name": "Cities",
+              "value": "['Delhi' , 'Indore']",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -256,
+        0
+      ],
+      "id": "cbf9c1c3-10d3-4699-978b-ce29e4bf21f2",
+      "name": "Edit Fields",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "Cities",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -32,
+        0
+      ],
+      "id": "2d4c3eb7-8d00-45a3-ae76-339f82a7d68f",
+      "name": "Split Out",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "url": "=https://geocoding-api.open-meteo.com/v1/search?",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "Amravati"
+            },
+            {
+              "name": "count",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        144,
+        240
+      ],
+      "id": "59da2e6f-0a85-4e1d-9800-4392cf8a172d",
+      "name": "Geo-coding"
+    },
+    {
+      "parameters": {
+        "jsCode": "const location = $json.results[0];\nreturn [\n  {\n    json: {\n      city: location.name,\n      latitude: location.latitude,\n      longitude: location.longitude\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        368,
+        0
+      ],
+      "id": "5950ce50-a02f-4d10-8e71-1e2d734effe9",
+      "name": "Code"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get weather report": {
+      "main": [
+        [
+          {
+            "node": "Text formatting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text formatting": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Geo-coding",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Geo-coding": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Get weather report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c473415c-7418-4ef8-9dac-f2f510655f00",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "584c65478509174251e01087025d82abcbf636f3f650fabc35c25e4cc9ded6d9"
+  },
+  "id": "YDKdRUJoRQWZamwP",
+  "tags": []
+}

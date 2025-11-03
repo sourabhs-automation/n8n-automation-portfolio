@@ -1,0 +1,195 @@
+{
+  "name": "Data-to-Insights Summarizer",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        64
+      ],
+      "id": "65797063-f854-42ed-a9c4-1f7f792c10a7",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Define the order of columns you want in the CSV\nconst fields = [\n  \"Date\",\n  \"New_Signups\",\n  \"Trials_Started\",\n  \"Conversions\",\n  \"Revenue_USD\",\n  \"Campaign\",\n  \"Website_Sessions\"\n];\n\n// Collect all rows from input\nconst items = $input.all().map(i => i.json);\n\n// Build CSV header\nconst header = fields.join(\",\");\n\n// Escape cell values for safety\nconst q = (v) => {\n  const s = (v === null || v === undefined) ? \"\" : String(v);\n  return `\"${s.replace(/\"/g, '\"\"')}\"`;\n};\n\n// Build rows\nconst rows = items.map(row =>\n  fields.map(f => q(row[f])).join(\",\")\n);\n\n// Return single item with CSV string\nreturn [\n  {\n    json: {\n      data: [header, ...rows].join(\"\\n\")\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        112,
+        64
+      ],
+      "id": "5238552a-6b7b-47d4-b68e-bd0f852b7610",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.data }}",
+        "options": {
+          "systemMessage": "You are a helpful assistant, analyse the given data and share top insights in 3 bullet points"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        352,
+        112
+      ],
+      "id": "3a35b0fd-5270-401d-bbe2-e34985778bd5",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        240,
+        352
+      ],
+      "id": "9fd87e87-fd84-4f27-a628-2a3abee26b4b",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "TcuiQLZYRY8QtLxH",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0968UG6ARK",
+          "mode": "list",
+          "cachedResultName": "all-ai-space"
+        },
+        "text": "={{ $json.output }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        848,
+        256
+      ],
+      "id": "9b74139b-31a3-4a24-a175-2dfc2df8b4b1",
+      "name": "Send a message",
+      "webhookId": "433b7617-5f21-4115-a08d-bec915750aef",
+      "credentials": {
+        "slackApi": {
+          "id": "FgizPYSwOsZqQFBV",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1z4iKBoXf2ooLSnw8K6by6Go80fupa6gJsqUIJ34Lryk",
+          "mode": "list",
+          "cachedResultName": "Daily-Report",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1z4iKBoXf2ooLSnw8K6by6Go80fupa6gJsqUIJ34Lryk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1370212170,
+          "mode": "list",
+          "cachedResultName": "Sales_Mktg__preview_",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1z4iKBoXf2ooLSnw8K6by6Go80fupa6gJsqUIJ34Lryk/edit#gid=1370212170"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -128,
+        64
+      ],
+      "id": "2faf1048-235f-43dc-8136-7b7fd9d51b6b",
+      "name": "Read Excel",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "SKglMuzmA4zmR3WK",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Read Excel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Excel": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "959a3120-3529-4c50-94fd-3d7b89c0645c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "584c65478509174251e01087025d82abcbf636f3f650fabc35c25e4cc9ded6d9"
+  },
+  "id": "1Hs32z41qgmZJu3N",
+  "tags": []
+}

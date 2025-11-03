@@ -1,0 +1,314 @@
+{
+  "name": "Download and Upload attachements",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "hour": 9
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "q": "has:attachment"
+        },
+        "options": {
+          "downloadAttachments": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -544,
+        -16
+      ],
+      "id": "094171e6-ffb5-41a0-9366-669efbafd6e3",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WxT4m2ugftR6IHxD",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "={{$json.attachments}}",
+        "name": "={{ $('Gmail').item.json.subject }}_{{ $('Merge').item.json.attachments }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1ZNyoGSAEy_97cfuIB73L55QGPEJqGrGT",
+          "mode": "list",
+          "cachedResultName": "N8N Invoice Download",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1ZNyoGSAEy_97cfuIB73L55QGPEJqGrGT"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        480,
+        -16
+      ],
+      "id": "6301136d-ddab-4ea3-a097-f80dba0236fc",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "VQXWF6nQEXCq1ZXu",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "messageId": "={{ $json.id }}",
+        "simple": false,
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -336,
+        -16
+      ],
+      "id": "4580d4a9-9ff6-45f8-85c0-523139fdbd21",
+      "name": "Gmail",
+      "webhookId": "c44dbac8-699a-434c-9798-1c6b906a583f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WxT4m2ugftR6IHxD",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "markAsRead",
+        "messageId": "={{ $('Gmail').item.json.id }}"
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        704,
+        -16
+      ],
+      "id": "ef758396-ffd5-4b2d-817b-07781fcf8c69",
+      "name": "Mark a message as read",
+      "webhookId": "c80ad82a-13fb-41e4-a91d-6d57e6e11cda",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WxT4m2ugftR6IHxD",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "=attachments",
+        "include": "allOtherFields",
+        "options": {
+          "includeBinary": true
+        }
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        80,
+        -16
+      ],
+      "id": "fda8b8c5-3ab6-4420-a77c-87f3213f339f",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail').item.json.id }}",
+        "labelIds": [
+          "Label_1834877757785562611"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        960,
+        -16
+      ],
+      "id": "454dec1e-263f-4894-8858-c060f361ce53",
+      "name": "Add label to message",
+      "webhookId": "6bce02fd-c11b-455f-bfb7-78949798c2b6",
+      "alwaysOutputData": false,
+      "notesInFlow": false,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WxT4m2ugftR6IHxD",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b87bb23e-df50-43bd-b468-310306db7e93",
+              "name": "attachments",
+              "value": "={{ $('Gmail').item.binary.keys() }}",
+              "type": "array"
+            },
+            {
+              "id": "42729927-8308-4975-92a7-482d81925302",
+              "name": "message_id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -128,
+        -16
+      ],
+      "id": "e25ca69b-aded-4d92-abd5-1345b9f79879",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "advanced": true,
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "message_id",
+              "field2": "id"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        304,
+        208
+      ],
+      "id": "660a2972-a050-4f6f-9e22-788295862b69",
+      "name": "Merge"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Upload file": {
+      "main": [
+        [
+          {
+            "node": "Mark a message as read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add label to message": {
+      "main": [
+        []
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark a message as read": {
+      "main": [
+        [
+          {
+            "node": "Add label to message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Kolkata",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "62caa135-c2c3-4894-9efd-564be4abc8ec",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "584c65478509174251e01087025d82abcbf636f3f650fabc35c25e4cc9ded6d9"
+  },
+  "id": "JGDG3RqD4E2Vu8fM",
+  "tags": []
+}

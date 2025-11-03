@@ -1,0 +1,396 @@
+{
+  "name": "Employee-Onboarding-Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1f0seZCdb5uVjR13z5iVwAj4hoSTpbSjAq2Ae1Eoy8JM",
+          "mode": "list",
+          "cachedResultName": "HR_Onboarding_Form (Responses)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1f0seZCdb5uVjR13z5iVwAj4hoSTpbSjAq2Ae1Eoy8JM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1277825512,
+          "mode": "list",
+          "cachedResultName": "Form Responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1f0seZCdb5uVjR13z5iVwAj4hoSTpbSjAq2Ae1Eoy8JM/edit#gid=1277825512"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        0
+      ],
+      "id": "a05bff6b-b113-4f68-a057-c7919c1dbb61",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "Xtp9YjNOMzyjqHsX",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1wsvycBKCav26rewQAG0-ocx8vLkCIE05iAGK4l9fF9s",
+          "mode": "list",
+          "cachedResultName": "Onboading status",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wsvycBKCav26rewQAG0-ocx8vLkCIE05iAGK4l9fF9s/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wsvycBKCav26rewQAG0-ocx8vLkCIE05iAGK4l9fF9s/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ new Date().toISOString() }}\n",
+            "Personal email": "={{ $('Employee lookup').item.json['Personal email'] }}",
+            "First_name": "={{ $('Employee lookup').item.json.First_name }}",
+            "Last_name": "={{ $('Employee lookup').item.json.Last_name }}",
+            "Department": "={{ $('Google Sheets Trigger').item.json.Department }}",
+            "Manager": "={{ $('Google Sheets Trigger').item.json.Manager }}",
+            "Devices": "={{ $('Google Sheets Trigger').item.json.Devices }}",
+            "DOJ": "={{ $('Google Sheets Trigger').item.json.DOJ }}",
+            "Company_email": "={{ $('Google Sheets Trigger').item.json.Company_email }}",
+            "welcome_email_sent": "={{ $json.welcome_email_sent }}",
+            "welcome_message_posted": "={{ $json.welcome_message_posted }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Personal email",
+              "displayName": "Personal email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "First_name",
+              "displayName": "First_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last_name",
+              "displayName": "Last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Department",
+              "displayName": "Department",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Manager",
+              "displayName": "Manager",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Devices",
+              "displayName": "Devices",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "DOJ",
+              "displayName": "DOJ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company_email",
+              "displayName": "Company_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "welcome_email_sent",
+              "displayName": "welcome_email_sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "welcome_message_posted",
+              "displayName": "welcome_message_posted",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "overall_status",
+              "displayName": "overall_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_updated",
+              "displayName": "last_updated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        480,
+        0
+      ],
+      "id": "e7d9a08a-84f3-4257-a9de-1926102216fd",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "SKglMuzmA4zmR3WK",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Employee lookup').item.json['Personal email'] }}",
+        "subject": "=Welcome to 'Your company' {{ $('Employee lookup').item.json.First_name }} {{ $('Employee lookup').item.json.Last_name }}",
+        "message": "=Hi {{ $('Google Sheets Trigger').item.json.First_name }},  We’re excited to welcome you to the team! Your official start date is {{ $('Google Sheets Trigger').item.json.DOJ }} email will be {{ $('Google Sheets Trigger').item.json.Company_email }}.  On your first day, you’ll receive access to the tools and resources you need, along with guidance from your manager, {{ $('Google Sheets Trigger').item.json.Manager }}.  If you have any questions before you start, feel free to reach out to HR at hr@yourcompany.com .  Looking forward to working with you!  Best regards, People Ops Team",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        32,
+        0
+      ],
+      "id": "5d5741b3-0ec6-446c-a552-01bad5955008",
+      "name": "Welcome email",
+      "webhookId": "b09aa95e-dba8-4eb4-8ae0-7ab884bf88d9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WxT4m2ugftR6IHxD",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09GQPVTN1F",
+          "mode": "list",
+          "cachedResultName": "employee-onboarding"
+        },
+        "text": "=*New Hire Provisioning Request* 🎉\n\n• *Name:* {{ $json.First_name }} {{ $json.Last_name }}\n• *Proposed Email:* {{ $('Google Sheets Trigger').item.json.Company_email }}\n• *Department:* {{ $('Google Sheets Trigger').item.json.Department }}\n• *Device(s):* {{ $('Google Sheets Trigger').item.json.Devices }}\n• *DOJ:* {{ $('Google Sheets Trigger').item.json.DOJ }}\n",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        -160,
+        0
+      ],
+      "id": "9c27f2be-2e00-4ae3-9645-1e4811b43d10",
+      "name": "Slack onboarding",
+      "webhookId": "9cb2e7bd-315d-4d31-a23e-2e64af189614",
+      "credentials": {
+        "slackApi": {
+          "id": "FgizPYSwOsZqQFBV",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1BPuHATo5iU-AnDpPmDXQA3M4PeHeBa4SOg3-45cerjY",
+          "mode": "list",
+          "cachedResultName": "Employee_Intake_Form (Responses)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BPuHATo5iU-AnDpPmDXQA3M4PeHeBa4SOg3-45cerjY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 35750762,
+          "mode": "list",
+          "cachedResultName": "Form Responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BPuHATo5iU-AnDpPmDXQA3M4PeHeBa4SOg3-45cerjY/edit#gid=35750762"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Personal email",
+              "lookupValue": "={{ $json['Personal email'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -352,
+        0
+      ],
+      "id": "a8900506-29d6-4ea5-b434-81aaf7cd9ec1",
+      "name": "Employee lookup",
+      "alwaysOutputData": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "SKglMuzmA4zmR3WK",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"welcome_email_sent\": {{ !!($node[\"Welcome email\"].json.id || $node[\"Welcome email\"].json.messageId) }},\n  \"welcome_message_posted\": {{ $node[\"Slack onboarding\"].json.ok === true }}\n}\n",
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        0
+      ],
+      "id": "d903ac2e-7c78-43dc-be6e-306539fb702e",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Employee lookup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Welcome email": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack onboarding": {
+      "main": [
+        [
+          {
+            "node": "Welcome email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Employee lookup": {
+      "main": [
+        [
+          {
+            "node": "Slack onboarding",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "fc106b9d-fe03-4c04-b633-c88a078f6045",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "584c65478509174251e01087025d82abcbf636f3f650fabc35c25e4cc9ded6d9"
+  },
+  "id": "uIB84KOods3gTjWG",
+  "tags": []
+}

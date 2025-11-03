@@ -1,0 +1,136 @@
+{
+  "name": "Error logger",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        32
+      ],
+      "id": "14e59883-2dc0-4570-8f8e-fb200b9d3df1",
+      "name": "Error logger",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "15jbKVsD09pEAm8TaTFTQ0wdDNl22iGx2HsQ0oJhPcfw",
+          "mode": "list",
+          "cachedResultName": "n8n error logs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15jbKVsD09pEAm8TaTFTQ0wdDNl22iGx2HsQ0oJhPcfw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15jbKVsD09pEAm8TaTFTQ0wdDNl22iGx2HsQ0oJhPcfw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Error message": "={{ $json.execution.error.message }}",
+            "Workflow name": "={{ $json.workflow.name }}",
+            "URL": "={{ $json.execution.url }}",
+            "Node": "={{ $json.execution.lastNodeExecuted }}",
+            "Timestamp": "={{ $now }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Workflow name",
+              "displayName": "Workflow name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "URL",
+              "displayName": "URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Node",
+              "displayName": "Node",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Error message",
+              "displayName": "Error message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -240,
+        32
+      ],
+      "id": "120cabf3-f337-476d-91c7-c39611292a1b",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "SKglMuzmA4zmR3WK",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Error logger": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "eb3a5369-88e0-491b-9eac-a8be113d7504",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "584c65478509174251e01087025d82abcbf636f3f650fabc35c25e4cc9ded6d9"
+  },
+  "id": "14RKamG5YfbfCWjh",
+  "tags": []
+}
